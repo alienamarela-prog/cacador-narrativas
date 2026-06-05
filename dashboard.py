@@ -186,8 +186,7 @@ with tab6:
             "Variação": round(scores[-1] - scores[0], 1),
         })
 
- with tab7:
-
+with tab7:
     st.subheader("🕵️ Wallet Discovery")
 
     if wallet_discovery:
@@ -196,26 +195,4 @@ with tab6:
             use_container_width=True
         )
     else:
-        st.info("Nenhuma carteira descoberta ainda.")   df_hist = pd.DataFrame(rows)
-
-    if df_hist.empty:
-        st.warning("Histórico vazio.")
-        st.stop()
-
-    df_hist = df_hist.sort_values("Score atual", ascending=False)
-    st.dataframe(df_hist, use_container_width=True)
-
-    narrativa_escolhida = st.selectbox(
-        "Escolha uma narrativa para ver evolução",
-        df_hist["Narrativa"].tolist()
-    )
-
-    pontos = history[narrativa_escolhida]
-
-    chart_df = pd.DataFrame([
-        {"data": p.get("data"), "score": p.get("score", 0)}
-        for p in pontos
-    ])
-
-    chart_df["data"] = pd.to_datetime(chart_df["data"])
-    st.line_chart(chart_df, x="data", y="score")
+        st.info("Nenhuma carteira descoberta ainda.")
