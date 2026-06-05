@@ -4,6 +4,60 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+def human_money(value):
+    if value is None:
+        return "-"
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return "-"
+
+    if value >= 1_000_000_000:
+        return f"${value/1_000_000_000:.2f}B"
+    if value >= 1_000_000:
+        return f"${value/1_000_000:.2f}M"
+    if value >= 1_000:
+        return f"${value/1_000:.2f}K"
+    return f"${value:.2f}"
+
+
+def human_percent(value):
+    if value is None:
+        return "-"
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return "-"
+    return f"{value:+.2f}%"
+
+
+def human_force(value):
+    if value is None:
+        return "-"
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return "-"
+    return f"{value:+.1f}"
+
+
+def formatar_tabela_narrative_dex(df):
+    df = df.copy()
+
+    if "volume_24h" in df.columns:
+        df["volume_24h"] = df["volume_24h"].apply(human_money)
+
+    if "market_cap" in df.columns:
+        df["market_cap"] = df["market_cap"].apply(human_money)
+
+    if "variacao_24h" in df.columns:
+        df["variacao_24h"] = df["variacao_24h"].apply(human_percent)
+
+    if "forca" in df.columns:
+        df["forca"] = df["forca"].apply(human_force)
+
+    return df
+
 HISTORY_PATH = Path("data/narrative_history.json")
 SNAPSHOT_PATH = Path("data/latest_snapshot.json")
 
@@ -137,6 +191,7 @@ with tab4:
                 tokens = item.get("tokens", [])
                 if tokens:
                     token_df = pd.DataFrame(tokens)
+                    token_df = formatar_tabela_narrative_dex(token_df)
                     st.dataframe(token_df, use_container_width=True)
                 else:
                     st.info("Sem tokens mapeados.")
