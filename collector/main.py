@@ -22,6 +22,7 @@ from .token_narratives import TOKEN_NARRATIVAS
 from .narrative_dex import gerar_narrative_dex, formatar_narrative_dex
 from .alpha_hunter import detectar_pre_explosao, formatar_pre_explosao
 from .alien_research import gerar_alien_research, formatar_alien_research
+from .snapshot import salvar_snapshot
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("cacador")
@@ -228,11 +229,24 @@ async def cycle():
     bloco_noticias = format_rss_narratives(rss_data)
     bloco_ranking = formatar_ranking_narrativas(ranking_narrativas)
     bloco_velocidade = formatar_velocidade_narrativas(ranking_narrativas)
-    bloco_explosoes = formatar_explosoes(detectar_explosoes(ranking_narrativas))
+    explosoes_data = detectar_explosoes(ranking_narrativas)
+    bloco_explosoes = formatar_explosoes(explosoes_data)
     bloco_novas = formatar_narrativas_novas(detectar_narrativas_novas(ranking_narrativas))
-    bloco_narrative_dex = formatar_narrative_dex(gerar_narrative_dex(ranking_narrativas, raw_tokens))
-    bloco_alpha_hunter = formatar_pre_explosao(detectar_pre_explosao(ranking_narrativas))
-    bloco_alien_research = formatar_alien_research(gerar_alien_research(ranking_narrativas))
+    narrative_dex_data = gerar_narrative_dex(ranking_narrativas, raw_tokens)
+    bloco_narrative_dex = formatar_narrative_dex(narrative_dex_data)
+    alpha_hunter_data = detectar_pre_explosao(ranking_narrativas)
+    bloco_alpha_hunter = formatar_pre_explosao(alpha_hunter_data)
+    alien_research_data = gerar_alien_research(ranking_narrativas)
+    bloco_alien_research = formatar_alien_research(alien_research_data)
+
+    salvar_snapshot(
+        ranking=ranking_narrativas,
+        alpha_hunter=alpha_hunter_data,
+        alien_research=alien_research_data,
+        narrative_dex=narrative_dex_data,
+        explosoes=explosoes_data,
+        tokens_mercado=raw_tokens,
+    )
 
     if OUTPUT_MODE == "alerts":
         if bloco_explosoes:
