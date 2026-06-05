@@ -1,0 +1,56 @@
+name: Caçador de Narrativas
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Radar normal: a cada 1 hora
+    - cron: "0 * * * *"
+
+    # Resumo semanal: segunda-feira 08h Brasil = 11h UTC
+    - cron: "0 11 * * 1"
+
+    # Radar de sexta: sexta-feira 18h Brasil = 21h UTC
+    - cron: "0 21 * * 5"
+
+jobs:
+  cacador:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar radar normal
+        if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_ONCE: "true"
+          POLL_INTERVAL_SECONDS: "3600"
+          TOP_N_TOKENS: "50"
+          ALERT_THRESHOLD: "80"
+          ALERT_COOLDOWN_MINUTES: "60"
+        run: python -m collector.main
+
+      - name: Rodar resumo semanal
+        if: github.event.schedule == '0 11 * * 1'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m collector.weekly_report
+
+      - name: Rodar radar de sexta
+        if: github.event.schedule == '0 21 * * 5'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m collector.friday_report
