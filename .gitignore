@@ -1,5 +1,13 @@
 .env
-data/
+.env.*
+!.env.example
+
 __pycache__/
 *.pyc
 .DS_Store
+
+data/*
+!data/.gitkeep
+!data/latest_snapshot.json
+!data/narrative_history.json
+!data/seen_narratives.json
