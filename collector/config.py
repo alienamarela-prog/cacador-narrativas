@@ -13,3 +13,5 @@ ALERT_COOLDOWN_MINUTES = int(os.environ.get("ALERT_COOLDOWN_MINUTES", "60"))
 COINGECKO_BASE = os.environ.get("COINGECKO_BASE", "https://api.coingecko.com/api/v3")
 
 RUN_ONCE = os.environ.get("RUN_ONCE", "false").lower() == "true"
+
+OUTPUT_MODE = os.environ.get("OUTPUT_MODE", "full").lower()

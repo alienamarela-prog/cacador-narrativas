@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Radar normal: a cada 1 hora
-    - cron: "0 * * * *"
+    # Radar completo: 08h e 20h Brasil = 11h e 23h UTC
+    - cron: "0 11,23 * * *"
+
+    # Checagem silenciosa de alertas explosivos: a cada 30 minutos
+    - cron: "*/30 * * * *"
 
     # Resumo semanal: segunda-feira 08h Brasil = 11h UTC
     - cron: "0 11 * * 1"
@@ -29,15 +32,29 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt
 
-      - name: Rodar radar normal
-        if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
+      - name: Rodar radar completo
+        if: github.event.schedule == '0 11,23 * * *' || github.event_name == 'workflow_dispatch'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           RUN_ONCE: "true"
+          OUTPUT_MODE: "full"
           POLL_INTERVAL_SECONDS: "3600"
           TOP_N_TOKENS: "50"
           ALERT_THRESHOLD: "80"
+          ALERT_COOLDOWN_MINUTES: "60"
+        run: python -m collector.main
+
+      - name: Checar alertas explosivos
+        if: github.event.schedule == '*/30 * * * *'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_ONCE: "true"
+          OUTPUT_MODE: "alerts"
+          POLL_INTERVAL_SECONDS: "3600"
+          TOP_N_TOKENS: "50"
+          ALERT_THRESHOLD: "85"
           ALERT_COOLDOWN_MINUTES: "60"
         run: python -m collector.main
 

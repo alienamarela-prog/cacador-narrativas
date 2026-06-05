@@ -2,7 +2,7 @@ import asyncio
 import time
 import logging
 
-from .config import POLL_INTERVAL_SECONDS, TOP_N_TOKENS, ALERT_THRESHOLD, ALERT_COOLDOWN_MINUTES, RUN_ONCE
+from .config import POLL_INTERVAL_SECONDS, TOP_N_TOKENS, ALERT_THRESHOLD, ALERT_COOLDOWN_MINUTES, RUN_ONCE, OUTPUT_MODE
 from .coingecko import fetch_top_tokens
 from .social import fetch_social_signals
 from .scoring import narrative_score
@@ -229,25 +229,30 @@ async def cycle():
     bloco_novas = formatar_narrativas_novas(detectar_narrativas_novas(ranking_narrativas))
     bloco_tokens_narrativas = formatar_narrativa_tokens(ranking_narrativas, raw_tokens)
 
-    await send_telegram_message(bloco_mercado)
+    if OUTPUT_MODE == "alerts":
+        if bloco_explosoes:
+            await send_telegram_message(bloco_explosoes)
+    else:
+        await send_telegram_message(bloco_mercado)
 
-    if bloco_noticias:
-        await send_telegram_message(bloco_noticias)
+        if bloco_noticias:
+            await send_telegram_message(bloco_noticias)
 
-    if bloco_ranking:
-        await send_telegram_message(bloco_ranking)
+        if bloco_ranking:
+            await send_telegram_message(bloco_ranking)
 
-    if bloco_velocidade:
-        await send_telegram_message(bloco_velocidade)
+        if bloco_velocidade:
+            await send_telegram_message(bloco_velocidade)
 
-    if bloco_explosoes:
-        await send_telegram_message(bloco_explosoes)
+        if bloco_explosoes:
+            await send_telegram_message(bloco_explosoes)
 
-    if bloco_novas:
-        await send_telegram_message(bloco_novas)
+        if bloco_novas:
+            await send_telegram_message(bloco_novas)
 
-    if bloco_tokens_narrativas:
-        await send_telegram_message(bloco_tokens_narrativas)
+        if bloco_tokens_narrativas:
+            await send_telegram_message(bloco_tokens_narrativas)
+
     log.info("Resumo enviado ao Telegram com %d scores", len(scores))
 
     now = time.time()
@@ -262,7 +267,8 @@ async def cycle():
 async def main():
     log.info("Caçador de Narrativas — Telegram direto iniciado (loop %ds)", POLL_INTERVAL_SECONDS)
 
-    await send_telegram_message("✅ Caçador de Narrativas iniciado.")
+    if OUTPUT_MODE != "alerts":
+        await send_telegram_message("✅ Caçador de Narrativas iniciado.")
 
     if RUN_ONCE:
         try:
