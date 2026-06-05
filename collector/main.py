@@ -20,6 +20,7 @@ from .new_narratives import detectar_narrativas_novas, formatar_narrativas_novas
 from .narrative_tokens import formatar_narrativa_tokens
 from .token_narratives import TOKEN_NARRATIVAS
 from .narrative_dex import gerar_narrative_dex, formatar_narrative_dex
+from .alpha_hunter import detectar_pre_explosao, formatar_pre_explosao
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("cacador")
@@ -229,10 +230,14 @@ async def cycle():
     bloco_explosoes = formatar_explosoes(detectar_explosoes(ranking_narrativas))
     bloco_novas = formatar_narrativas_novas(detectar_narrativas_novas(ranking_narrativas))
     bloco_narrative_dex = formatar_narrative_dex(gerar_narrative_dex(ranking_narrativas, raw_tokens))
+    bloco_alpha_hunter = formatar_pre_explosao(detectar_pre_explosao(ranking_narrativas))
 
     if OUTPUT_MODE == "alerts":
         if bloco_explosoes:
             await send_telegram_message(bloco_explosoes)
+
+        if bloco_alpha_hunter:
+            await send_telegram_message(bloco_alpha_hunter)
     else:
         await send_telegram_message(bloco_mercado)
 
@@ -253,6 +258,9 @@ async def cycle():
 
         if bloco_narrative_dex:
             await send_telegram_message(bloco_narrative_dex)
+
+        if bloco_alpha_hunter:
+            await send_telegram_message(bloco_alpha_hunter)
 
     log.info("Resumo enviado ao Telegram com %d scores", len(scores))
 
