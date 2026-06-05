@@ -14,6 +14,27 @@ IGNORAR = {
     "0x0000000000000000000000000000000000000000",
 }
 
+ENDERECOS_BLOQUEADOS = {
+    # exchanges / routers / contratos muito ruidosos
+    "0x000000000004444c5dc75cb358380d2e3de08a90",
+    "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+    "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+}
+
+def endereco_util(addr):
+    addr = (addr or "").lower()
+
+    if not addr:
+        return False
+
+    if addr in IGNORAR:
+        return False
+
+    if addr in ENDERECOS_BLOQUEADOS:
+        return False
+
+    return True
+
 async def buscar_txs_token(symbol, contract, limit=50):
     params = {
         "chainid": "1",
@@ -55,7 +76,7 @@ async def descobrir_carteiras():
                 to_addr = (tx.get("to") or "").lower()
 
                 for addr, tipo in [(from_addr, "saida"), (to_addr, "entrada")]:
-                    if not addr or addr in IGNORAR:
+                    if not endereco_util(addr):
                         continue
 
                     score[addr]["address"] = addr
