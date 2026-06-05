@@ -17,6 +17,21 @@ INFLUENCIADORES = {
     "Messari": "MessariCrypto",
     "Bankless": "BanklessHQ",
     "0xMert": "0xMert_",
+
+    # Protocolos oficiais
+    "Hyperliquid": "HyperliquidX",
+    "Jupiter": "JupiterExchange",
+    "Monad": "monad_xyz",
+    "MegaETH": "megaeth_labs",
+    "Initia": "initiaFDN",
+    "Berachain": "berachain",
+    "Ethena": "ethena_labs",
+    "Pendle": "pendle_fi",
+    "Aave": "aave",
+    "EigenLayer": "eigenlayer",
+    "Virtuals": "virtuals_io",
+    "Base": "base",
+    "Farcaster": "farcaster_xyz",
 }
 
 # Instâncias públicas podem quebrar. Se uma falhar, tentamos a próxima.
