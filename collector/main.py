@@ -24,6 +24,7 @@ from .alpha_hunter import detectar_pre_explosao, formatar_pre_explosao
 from .alien_research import gerar_alien_research, formatar_alien_research
 from .snapshot import salvar_snapshot
 from .content_hunter import gerar_content_hunter, formatar_content_hunter
+from .wallet_hunter import gerar_wallet_hunter, formatar_wallet_hunter
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("cacador")
@@ -243,11 +244,15 @@ async def cycle():
     content_hunter_data = gerar_content_hunter(alien_research_data)
     bloco_content_hunter = formatar_content_hunter(content_hunter_data)
 
+    wallet_hunter_data = await gerar_wallet_hunter()
+    bloco_wallet_hunter = formatar_wallet_hunter(wallet_hunter_data)
+
     salvar_snapshot(
         ranking=ranking_narrativas,
         alpha_hunter=alpha_hunter_data,
         alien_research=alien_research_data,
         content_hunter=content_hunter_data,
+        wallet_hunter=wallet_hunter_data,
         narrative_dex=narrative_dex_data,
         explosoes=explosoes_data,
         tokens_mercado=raw_tokens,
@@ -291,6 +296,9 @@ async def cycle():
 
         if bloco_content_hunter:
             await send_telegram_message(bloco_content_hunter)
+
+        if bloco_wallet_hunter:
+            await send_telegram_message(bloco_wallet_hunter)
 
     log.info("Resumo enviado ao Telegram com %d scores", len(scores))
 

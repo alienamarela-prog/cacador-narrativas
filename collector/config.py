@@ -15,3 +15,6 @@ COINGECKO_BASE = os.environ.get("COINGECKO_BASE", "https://api.coingecko.com/api
 RUN_ONCE = os.environ.get("RUN_ONCE", "false").lower() == "true"
 
 OUTPUT_MODE = os.environ.get("OUTPUT_MODE", "full").lower()
+ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY", "")
+
+WALLET_HUNTER_ADDRESSES = os.environ.get("WALLET_HUNTER_ADDRESSES", "")
