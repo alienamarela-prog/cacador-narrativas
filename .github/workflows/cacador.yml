@@ -16,6 +16,9 @@ on:
     # Radar de sexta: sexta-feira 18h Brasil = 21h UTC
     - cron: "0 21 * * 5"
 
+    # Tendência estrutural mensal: todo dia 1 às 08h Brasil = 11h UTC
+    - cron: "0 11 1 * *"
+
 jobs:
   cacador:
     runs-on: ubuntu-latest
@@ -71,3 +74,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python -m collector.friday_report
+
+      - name: Rodar tendência estrutural de 30 dias
+        if: github.event.schedule == '0 11 1 * *'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m collector.monthly_trend
