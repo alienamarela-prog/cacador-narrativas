@@ -27,16 +27,18 @@ research = snapshot.get("alien_research", [])
 dex = snapshot.get("narrative_dex", [])
 content = snapshot.get("content_hunter", [])
 explosoes = snapshot.get("explosoes", [])
+wallet_discovery = snapshot.get("wallet_discovery", [])
 
 st.caption(f"Última atualização: {snapshot.get('gerado_em')}")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🔥 Radar",
     "⚡ Alpha Hunter",
     "🧠 Alien Research",
     "🧬 Narrative Dex",
     "✍️ Content Hunter",
     "📈 Histórico",
+    "🕵️ Wallet Discovery",
 ])
 
 with tab1:
@@ -184,7 +186,17 @@ with tab6:
             "Variação": round(scores[-1] - scores[0], 1),
         })
 
-    df_hist = pd.DataFrame(rows)
+ with tab7:
+
+    st.subheader("🕵️ Wallet Discovery")
+
+    if wallet_discovery:
+        st.dataframe(
+            pd.DataFrame(wallet_discovery),
+            use_container_width=True
+        )
+    else:
+        st.info("Nenhuma carteira descoberta ainda.")   df_hist = pd.DataFrame(rows)
 
     if df_hist.empty:
         st.warning("Histórico vazio.")
