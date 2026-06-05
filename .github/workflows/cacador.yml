@@ -4,20 +4,23 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Radar completo: 08h e 20h Brasil = 11h e 23h UTC
-    - cron: "0 11,23 * * *"
+    # Alertas explosivos: de hora em hora
+    - cron: "5 * * * *"
 
-    # Checagem silenciosa de alertas explosivos: a cada 30 minutos
-    - cron: "*/30 * * * *"
+    # Radar completo: 08h Brasil = 11h UTC
+    - cron: "15 11 * * *"
+
+    # Radar completo: 20h Brasil = 23h UTC
+    - cron: "15 23 * * *"
 
     # Resumo semanal: segunda-feira 08h Brasil = 11h UTC
-    - cron: "0 11 * * 1"
+    - cron: "25 11 * * 1"
 
     # Radar de sexta: sexta-feira 18h Brasil = 21h UTC
-    - cron: "0 21 * * 5"
+    - cron: "25 21 * * 5"
 
     # Tendência estrutural mensal: todo dia 1 às 08h Brasil = 11h UTC
-    - cron: "0 11 1 * *"
+    - cron: "35 11 1 * *"
 
 jobs:
   cacador:
@@ -35,24 +38,13 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt
 
-      - name: Rodar radar completo
-        if: github.event.schedule == '0 11,23 * * *' || github.event_name == 'workflow_dispatch'
+      - name: Rodar alertas explosivos
+        if: github.event.schedule == '5 * * * *'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          RUN_ONCE: "true"
-          OUTPUT_MODE: "full"
-          POLL_INTERVAL_SECONDS: "3600"
-          TOP_N_TOKENS: "50"
-          ALERT_THRESHOLD: "80"
-          ALERT_COOLDOWN_MINUTES: "60"
-        run: python -m collector.main
-
-      - name: Checar alertas explosivos
-        if: github.event.schedule == '*/30 * * * *'
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          WALLET_HUNTER_ADDRESSES: ${{ secrets.WALLET_HUNTER_ADDRESSES }}
           RUN_ONCE: "true"
           OUTPUT_MODE: "alerts"
           POLL_INTERVAL_SECONDS: "3600"
@@ -61,22 +53,52 @@ jobs:
           ALERT_COOLDOWN_MINUTES: "60"
         run: python -m collector.main
 
+      - name: Rodar radar completo manhã
+        if: github.event.schedule == '15 11 * * *' || github.event_name == 'workflow_dispatch'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          WALLET_HUNTER_ADDRESSES: ${{ secrets.WALLET_HUNTER_ADDRESSES }}
+          RUN_ONCE: "true"
+          OUTPUT_MODE: "full"
+          POLL_INTERVAL_SECONDS: "3600"
+          TOP_N_TOKENS: "50"
+          ALERT_THRESHOLD: "80"
+          ALERT_COOLDOWN_MINUTES: "60"
+        run: python -m collector.main
+
+      - name: Rodar radar completo noite
+        if: github.event.schedule == '15 23 * * *'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          WALLET_HUNTER_ADDRESSES: ${{ secrets.WALLET_HUNTER_ADDRESSES }}
+          RUN_ONCE: "true"
+          OUTPUT_MODE: "full"
+          POLL_INTERVAL_SECONDS: "3600"
+          TOP_N_TOKENS: "50"
+          ALERT_THRESHOLD: "80"
+          ALERT_COOLDOWN_MINUTES: "60"
+        run: python -m collector.main
+
       - name: Rodar resumo semanal
-        if: github.event.schedule == '0 11 * * 1'
+        if: github.event.schedule == '25 11 * * 1'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python -m collector.weekly_report
 
       - name: Rodar radar de sexta
-        if: github.event.schedule == '0 21 * * 5'
+        if: github.event.schedule == '25 21 * * 5'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python -m collector.friday_report
 
       - name: Rodar tendência estrutural de 30 dias
-        if: github.event.schedule == '0 11 1 * *'
+        if: github.event.schedule == '35 11 1 * *'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
