@@ -19,6 +19,7 @@ from .explosion_detector import detectar_explosoes, formatar_explosoes
 from .new_narratives import detectar_narrativas_novas, formatar_narrativas_novas
 from .narrative_tokens import formatar_narrativa_tokens
 from .token_narratives import TOKEN_NARRATIVAS
+from .narrative_dex import gerar_narrative_dex, formatar_narrative_dex
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("cacador")
@@ -227,7 +228,7 @@ async def cycle():
     bloco_velocidade = formatar_velocidade_narrativas(ranking_narrativas)
     bloco_explosoes = formatar_explosoes(detectar_explosoes(ranking_narrativas))
     bloco_novas = formatar_narrativas_novas(detectar_narrativas_novas(ranking_narrativas))
-    bloco_tokens_narrativas = formatar_narrativa_tokens(ranking_narrativas, raw_tokens)
+    bloco_narrative_dex = formatar_narrative_dex(gerar_narrative_dex(ranking_narrativas, raw_tokens))
 
     if OUTPUT_MODE == "alerts":
         if bloco_explosoes:
@@ -250,8 +251,8 @@ async def cycle():
         if bloco_novas:
             await send_telegram_message(bloco_novas)
 
-        if bloco_tokens_narrativas:
-            await send_telegram_message(bloco_tokens_narrativas)
+        if bloco_narrative_dex:
+            await send_telegram_message(bloco_narrative_dex)
 
     log.info("Resumo enviado ao Telegram com %d scores", len(scores))
 
